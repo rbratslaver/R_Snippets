@@ -17,39 +17,13 @@ snippet my_skim_options
 	options(scipen=999, digits=1)
 	skim(${1:df})
 	
+
+	
+
+
+
 	
 snippet my_top10_graph
-	strings<-select_if(${1:df}, negate(is.numeric)) %>%
-	#select(matches('|')) %>% 
-	names()
-	make_table <- function(df,var) {
-	col <- sym(var)
-	df %>% 
-	count(!!col) %>% 
-	mutate(percent_ = n/sum(n),
-	variable = var) %>% 
-	rename(value = !!col) %>% 
-	top_n(5, n)
-	}
-	x <- map_df(c(strings), ~make_table(${1:df}, .x))
-	ggpubr::ggbarplot(data=x, x='value', y='n',
-	fill='variable',
-	facet.by = 'variable',
-	scales = 'free',
-	x.text.angle = 90,
-	rotate = T,
-	sort.val = 'asc',
-	legend = 'none')+
-	ggrepel::geom_label_repel(aes(label = paste0(n,","," ",scales::percent(percent_))),point.padding = NA)
-
-
-
-	
-
-
-
-	
-snippet my_top10_graph_v2
 	#strings<-select_if(${1:df}, negate(is.numeric)) %>%
 	strings <- ${1:df} %>% select_if(function(col) !is.numeric(col) & !lubridate::is.POSIXct(col) & !lubridate::is.Date(col)) %>% names()
 	#select(matches('|')) %>% names()
