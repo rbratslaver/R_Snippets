@@ -1,0 +1,277 @@
+snippet #!
+	#!/usr/bin/env Rscript
+
+# includes
+snippet lib
+	library(${1:package})
+snippet req
+	require(${1:package})
+snippet source
+	source('${1:file}')
+
+# conditionals
+snippet if
+	if (${1:condition}) {
+		${2:code}
+	}
+snippet el
+	else {
+		${1:code}
+	}
+snippet ei
+	else if (${1:condition}) {
+		${2:code}
+	}
+
+# functions
+snippet fun
+	${1:name} = function (${2:variables}) {
+		${3:code}
+	}
+snippet ret
+	return(${1:code})
+
+# dataframes, lists, etc
+snippet df
+	${1:name}[${2:rows}, ${3:cols}]
+snippet c
+	c(${1:items})
+snippet li
+	list(${1:items})
+snippet mat
+	matrix(${1:data}, nrow=${2:rows}, ncol=${3:cols})
+
+# apply functions
+snippet apply
+	apply(${1:array}, ${2:margin}, ${3:function})
+snippet lapply
+	lapply(${1:list}, ${2:function})
+snippet sapply
+	lapply(${1:list}, ${2:function})
+snippet vapply
+	vapply(${1:list}, ${2:function}, ${3:type})
+snippet mapply
+	mapply(${1:function}, ${2:...})
+snippet tapply
+	tapply(${1:vector}, ${2:index}, ${3:function})
+snippet rapply
+	rapply(${1:list}, ${2:function})
+
+# plyr functions
+snippet dd
+	ddply(${1:frame}, ${2:variables}, ${3:function})
+snippet dl
+	dlply(${1:frame}, ${2:variables}, ${3:function})
+snippet da
+	daply(${1:frame}, ${2:variables}, ${3:function})
+snippet d_
+	d_ply(${1:frame}, ${2:variables}, ${3:function})
+
+snippet ad
+	adply(${1:array}, ${2:margin}, ${3:function})
+snippet al
+	alply(${1:array}, ${2:margin}, ${3:function})
+snippet aa
+	aaply(${1:array}, ${2:margin}, ${3:function})
+snippet a_
+	a_ply(${1:array}, ${2:margin}, ${3:function})
+
+snippet ld
+	ldply(${1:list}, ${2:function})
+snippet ll
+	llply(${1:list}, ${2:function})
+snippet la
+	laply(${1:list}, ${2:function})
+snippet l_
+	l_ply(${1:list}, ${2:function})
+
+snippet md
+	mdply(${1:matrix}, ${2:function})
+snippet ml
+	mlply(${1:matrix}, ${2:function})
+snippet ma
+	maply(${1:matrix}, ${2:function})
+snippet m_
+	m_ply(${1:matrix}, ${2:function})
+
+# plot functions
+snippet pl
+	plot(${1:x}, ${2:y})
+snippet ggp
+	ggplot(${1:data}, aes(${2:aesthetics}))
+snippet img
+	${1:(jpeg,bmp,png,tiff)}(filename="${2:filename}", width=${3}, height=${4}, unit="${5}")
+	${6:plot}
+	dev.off()
+
+# statistical test functions
+snippet fis
+	fisher.test(${1:x}, ${2:y})
+snippet chi
+	chisq.test(${1:x}, ${2:y})
+snippet tt
+	t.test(${1:x}, ${2:y})
+snippet wil
+	wilcox.test(${1:x}, ${2:y})
+snippet cor
+	cor.test(${1:x}, ${2:y})
+snippet fte
+	var.test(${1:x}, ${2:y})
+snippet kvt 
+	kv.test(${1:x}, ${2:y})
+	
+	
+snippet my_top10_cats
+	map(select_if(${1:df}, negate(is.numeric)),
+	~janitor::tabyl(.x) %>% arrange(desc(n)) %>% head(10) %>% adorn_totals())
+	
+
+
+
+snippet my_skim_options
+	require(skimr)
+	skim_with_defaults()
+	skim_with(numeric = list(hist = NULL, complete = NULL, n = NULL)) 
+	skim_with(integer = list(hist = NULL, complete = NULL, n = NULL)) 
+	skim_format(numeric = list(nsmall = 0))
+	skim_format(integer = list(nsmall = 0))
+	skim_with(character = list(complete = NULL, n = NULL)) 
+	skim_with(factor = list(complete = NULL, n = NULL))
+	options(scipen=999, digits=1)
+	skim(${1:df})
+	
+	
+snippet my_top10_graph
+	strings<-select_if(${1:df}, negate(is.numeric)) %>%
+	#select(matches('|')) %>% 
+	names()
+	make_table <- function(df,var) {
+	col <- sym(var)
+	df %>% 
+	count(!!col) %>% 
+	mutate(percent_ = n/sum(n),
+	variable = var) %>% 
+	rename(value = !!col) %>% 
+	top_n(5, n)
+	}
+	x <- map_df(c(strings), ~make_table(${1:df}, .x))
+	ggpubr::ggbarplot(data=x, x='value', y='n',
+	fill='variable',
+	facet.by = 'variable',
+	scales = 'free',
+	x.text.angle = 90,
+	rotate = T,
+	sort.val = 'asc',
+	legend = 'none')+
+	ggrepel::geom_label_repel(aes(label = paste0(n,","," ",scales::percent(percent_))),point.padding = NA)
+
+
+
+	
+
+
+
+	
+snippet my_top10_graph_v2
+	#strings<-select_if(${1:df}, negate(is.numeric)) %>%
+	strings <- ${1:df} %>% select_if(function(col) !is.numeric(col) & !lubridate::is.POSIXct(col) & !lubridate::is.Date(col)) %>% names()
+	#select(matches('|')) %>% names()
+	make_table <- function(df,var) {
+	col <- sym(var)
+	df %>% 
+	count(!!col) %>% 
+	mutate(percent_ = n/sum(n),
+	variable = var) %>% 
+	rename(value = !!col) %>% 
+	top_n(5, n)
+	}
+	x <- map_df(c(strings), ~make_table(${1:df}, .x))
+	x <- x %>% 
+	ungroup() %>% 
+	arrange(variable, n) %>% 
+	mutate(.r = row_number())
+	ggpubr::ggbarplot(data=x, x='.r', y='n',
+	fill='variable',
+	facet.by = 'variable',
+	scales = 'free',
+	x.text.angle = 90,
+	rotate = T,
+	legend = 'none')+
+	ggrepel::geom_label_repel(aes(label = paste0(n,","," ",scales::percent(percent_))),point.padding = NA)+
+	scale_x_continuous(breaks = x$.r, labels = x$'value)+
+	ggpubr::rremove('x.text')
+	
+	
+	
+	
+	
+snippet my_cor
+	nums <- ${1:df} %>% select_if(function(col) !is.POSIXct(col) & !is.Date(col) & is.numeric(col)) %>% 
+	select(-matches('year|date')) 
+	cor <- round(cor(nums, use='complete.obs'),1)
+	p.mat <- cor_pmat(nums, use = 'complete.obs')
+	ggcorrplot::ggcorrplot(cor, lab=T, p.mat = p.mat, sig.level = .05, tl.srt=90, hc.order = T,
+	outline.color = 'white',
+	ggtheme = ggplot2::theme_bw,
+	colors = c("#ffa500", "white", "#a64ca6"))
+
+
+
+snippet my_packages
+	packages <- c("plotly", "treemap", "tidyverse", "skimr", "gapminder", "scales", "d3treeR",
+	"leaflet", "lubridate", "reshape2", "magrittr","janitor", "GGally", "ggcorrplot", 
+	"ggpubr", "cowplot", "ggrepel", "nycflights13", "ggstatsplot", "stats",
+	"ISLR","RColorBrewer", "data.table", "splitstackshape", "bit64")
+	lubripack::lubripack(packages)
+
+
+snippet my_from_excel
+	df <- read.delim("clipboard")
+
+
+snippet my_to_excel
+	write.csv(${1:df}, "x.csv")
+	
+
+snippet my_to_factor	
+	${1:df} %<>%
+	mutate_at(vars(${2:var}), as.factor)
+	
+
+snippet my_remove_objects
+	rm(list = ls(pattern = '')
+	
+	
+snippet my_assign
+	${1:df} <- ${1:df} %>%
+	
+	
+snippet my_nums
+	nums <- select_if(${1:df}, is.numeric) %>% names()
+	
+	
+snippet my_cats
+	cats <- select_if(${1:df}, negate(is.numeric)) %>% names()
+	
+snippet my_relevel_factor
+	${1:df}${2:var} = factor(${1:df}${2:var}, levels(${1:df}${2:var})[c(1,2,3,4)])
+
+
+
+snippet my_to_lower
+	${1:df}<- ${1:df}%>% 
+	mutate_all(tolower) %>% 
+	select_all(tolower) 
+
+	
+	
+snippet my_cut
+	${1:df} %<>% 
+	mutate(cut_${2:var} = cut(${2:var}, breaks = c(-10,0,,Inf),
+	labels = c('<0','0-','','',''), right = F))
+
+
+
+
+
+	
