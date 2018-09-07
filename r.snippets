@@ -265,7 +265,7 @@ snippet my_to_lower
 
 	
 	
-snippet my_cut
+snippet my_cut_snippet
 	${1:df} %<>% 
 	mutate(cut_${2:var} = cut(${2:var}, breaks = c(-10,0,,Inf),
 	labels = c('<0','0-','','',''), right = F))
