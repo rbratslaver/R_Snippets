@@ -13,7 +13,7 @@ snippet my_skim_options
 	skim_format(numeric = list(nsmall = 0))
 	skim_format(integer = list(nsmall = 0))
 	skim_with(character = list(complete = NULL, n = NULL)) 
-	skim_with(factor = list(complete = NULL, n = NULL))
+	skim_with(factor = list(complete = NULL, n = NULL, ordered = NULL))
 	options(scipen=999, digits=1)
 	skim(${1:df})
 	
